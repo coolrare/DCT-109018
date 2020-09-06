@@ -20,7 +20,8 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  login() {
+  login(event): void {
+    console.log(event);
     this.loginService
       .login(this.user)
       .pipe(
