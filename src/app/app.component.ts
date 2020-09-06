@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { partition } from 'lodash';
 
 @Component({
   selector: 'app-root',
@@ -10,5 +11,8 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     console.log($('body'));
+    console.log(partition([1, 2, 3, 4], n => n % 2));
   }
 }
+
+
