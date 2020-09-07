@@ -1,9 +1,11 @@
 import { LoginService } from './../login.service';
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { catchError } from 'rxjs/operators';
+import { catchError, switchMap, tap, map } from 'rxjs/operators';
 import { of, throwError } from 'rxjs';
+import { NgForm } from '@angular/forms';
+import { Route } from '@angular/compiler/src/core';
 
 @Component({
   selector: 'app-login',
@@ -11,12 +13,18 @@ import { of, throwError } from 'rxjs';
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements OnInit {
+  @ViewChild('tForm') form: NgForm;
+
   user = {
     email: '',
     password: '',
   };
 
-  constructor(private router: Router, private loginService: LoginService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private loginService: LoginService
+  ) {}
 
   ngOnInit(): void {}
 
@@ -28,18 +36,22 @@ export class LoginComponent implements OnInit {
         catchError((error: HttpErrorResponse) => {
           alert(error.error.body[0]);
           return throwError(error);
-        })
+        }),
+        tap(data => {
+          const token = data.user.token;
+          localStorage.setItem('token', token);
+        }),
+        switchMap(data => this.route.queryParamMap),
+        map(queryParamMap => queryParamMap.get('redirect'))
       )
       .subscribe({
-        next: (result) => {
-          console.log(result);
-          const token = result.user.token;
-          localStorage.setItem('token', token);
-          this.router.navigateByUrl('/');
+        next: (redirect) => {
+          console.log(redirect);
+          this.router.navigateByUrl(redirect);
         },
         error: (error: HttpErrorResponse) => {
           console.log(error);
-        }
+        },
       });
   }
 }

@@ -1,33 +1,27 @@
 <div class="editor-page">
   <div class="container page">
     <div class="row">
+      {{ form.value | json }}
       <div class="col-md-10 col-md-offset-1 col-xs-12">
-        <form>
+        <form [formGroup]="form" (ngSubmit)="createPost()">
           <fieldset class="form-group">
-            <input
-              class="form-control form-control-lg"
-              type="text"
-              placeholder="Post Title"
-            />
+            <input class="form-control form-control-lg" type="text" placeholder="Post Title" formControlName="title" />
+          </fieldset>
+          {{ form.get('title').invalid }}
+          <fieldset class="form-group">
+            <textarea class="form-control" rows="3" placeholder="Description" formControlName="description"></textarea>
           </fieldset>
           <fieldset class="form-group">
-            <textarea
-              class="form-control"
-              rows="3"
-              placeholder="Description"
-            ></textarea>
+            <textarea class="form-control" rows="8" placeholder="Post body" formControlName="body"></textarea>
           </fieldset>
+          {{ form.get('body').errors | json  }}
           <fieldset class="form-group">
-            <textarea
-              class="form-control"
-              rows="8"
-              placeholder="Post body"
-            ></textarea>
-          </fieldset>
-          <fieldset class="form-group">
-            <input class="form-control" type="text" placeholder="Enter tags" />
+            <input class="form-control" type="text" placeholder="Enter tags" #input
+              (keyup.enter)="addTag(input.value); input.value = '';" />
             <div class="tag-list">
-              <span class="label label-pill label-default">
+              <span class="label label-pill label-default" *ngFor="let item of tags.controls; let index=index">
+                <i class="ion-close-round" (click)="removeTag(index)"></i> {{ item.value }}</span>
+              <!-- <span class="label label-pill label-default">
                 <i class="ion-close-round"></i> programming</span
               >
               <span class="label label-pill label-default">
@@ -35,10 +29,12 @@
               >
               <span class="label label-pill label-default">
                 <i class="ion-close-round"></i> webdev</span
-              >
+              > -->
             </div>
           </fieldset>
-          <button type="submit" class="btn btn-lg btn-primary pull-xs-right">
+          <button
+          [disabled]="form.invalid"
+          type="submit" class="btn btn-lg btn-primary pull-xs-right">
             Create Post
           </button>
         </form>
